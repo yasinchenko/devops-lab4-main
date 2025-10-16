@@ -1,0 +1,47 @@
+version: "3.9"
+
+services:
+  api:
+    build: ./backend
+    container_name: api
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./backend/.env
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      - db
+
+  db:
+    image: postgres:14
+    container_name: postgres
+    environment:
+      POSTGRES_USER: example_user
+      POSTGRES_PASSWORD: example_pass
+      POSTGRES_DB: example_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/dist:/public
+    networks:
+      - frontend
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
+
+networks:
+  frontend:
+  backend:
+# end of file
